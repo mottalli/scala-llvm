@@ -12,9 +12,11 @@ trait Value {
     str
   }
 
-  def +(other: Value)(implicit builder: Builder): Value = ???
+  /** Same-type sum. Will throw error if values are not of the same type */
+  def ~+[T](other: T)(implicit builder: Builder): SSAValue = builder.add(this, other)
+
   /** Sum with upcast */
-  def ^+(other: Value)(implicit builder: Builder): Value = ???
+  def ^+(other: Value)(implicit builder: Builder): SSAValue = ???
 
   def setName(name: String): this.type = { api.LLVMSetValueName(this, name); this }
 }
@@ -36,4 +38,5 @@ abstract class BaseValue(val llvmValue: api.Value, val module: Module) extends V
 }
 
 class Constant(llvmValue: api.Value)(implicit module: Module) extends BaseValue(llvmValue, module)
-class SSAValue(llvmValue: api.Value)(implicit module: Module) extends BaseValue(llvmValue, module)
+class Instruction(llvmValue: api.Value)(implicit module: Module) extends BaseValue(llvmValue, module)
+class SSAValue(llvmValue: api.Value)(implicit module: Module) extends Instruction(llvmValue)

@@ -100,22 +100,27 @@ private[llvm] object api {
   def LLVMAddIncoming = nonNative.LLVMAddIncoming _
 
   // LLVM tools library, used to overcome some limitations of the C api
-  /*object tools {
+  object tools {
     Native.register("LLVMTools")
 
     @native def LLVMToolsInitializeAll()
     @native def LLVMToolsCompileModuleWithMCJIT(engineRef: PointerByReference, module: api.Module, optimizationLevel: Int, errorRef: PointerByReference): Int
     @native def LLVMToolsGetPointerToFunction(engine: api.ExecutionEngine, function: api.Value): Pointer
 
+    type InsertPoint = Pointer
+    @native def LLVMSaveInsertPoint(builderRef: Builder): InsertPoint
+    @native def LLVMRestoreInsertPoint(builderRef: Builder, ip: InsertPoint)
+    @native def LLVMDisposeInsertPoint(ip: InsertPoint)
+
     @native def LLVMToolsExecute_L_L_Function(fptr: Pointer, p1: Long): Long
     @native def LLVMToolsExecute_I_I_Function(fptr: Pointer, p1: Int): Int
     @native def LLVMToolsExecute_I_II_Function(fptr: Pointer, p1: Int, p2: Int): Int
     @native def LLVMToolsExecute_B_II_Function(fptr: Pointer, p1: Int, p2: Int): Byte
     @native def LLVMToolsExecute_B_FF_Function(fptr: Pointer, p1: Float, p2: Float): Byte
-  }*/
+  }
 
   // One-time initialization of LLVM
-  //tools.LLVMToolsInitializeAll()
+  tools.LLVMToolsInitializeAll()
 }
 
 trait NonNativeApi extends Library {
