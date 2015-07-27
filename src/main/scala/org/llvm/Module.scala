@@ -32,7 +32,8 @@ class Module(val name: String)(implicit val context: Context) extends Disposable
     case _ => throw new UnsupportedTypeException("Could not map type to LLVM type")
   }
 
-  private[llvm] def mapLLVMType(typex: api.Type): Type = ???
+  class GlobalVariable(llvmValue: api.Value) extends BaseValue(llvmValue, this) with Variable
+  def addGlobalVariable(typ: Type, name: String) = new GlobalVariable(api.LLVMAddGlobal(this, typ, name))
 }
 
 object Module {

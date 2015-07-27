@@ -62,7 +62,7 @@ LLVMInsertPointRef LLVMSaveInsertPoint(LLVMBuilderRef builderRef)
 {
     // Create the insert point in the stack
     InsertPoint ip = llvm::unwrap(builderRef)->saveIP();
-    InsertPoint* pip = new InsertPoint(ip.getBlock(), ip.getPoint());
+    InsertPoint* pip = new InsertPoint(ip);
     return (LLVMInsertPointRef) pip;
 }
 

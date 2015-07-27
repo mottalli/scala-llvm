@@ -49,6 +49,7 @@ private[llvm] object api {
   @native def LLVMVerifyModule(module: api.Module, action: Int, errorRef: PointerByReference): Int
   @native def LLVMPrintModuleToString(module: api.Module): Pointer
   @native def LLVMDisposeExecutionEngine(engine: api.ExecutionEngine)
+  @native def LLVMAddGlobal(module: api.Module, typ: api.Type, name: String): api.Value
 
   // Builder
   @native def LLVMCreateBuilderInContext(context: api.Context): api.Builder
@@ -56,11 +57,13 @@ private[llvm] object api {
   @native def LLVMBuildAdd(builder: api.Builder, lhs: api.Value, rhs: api.Value, name: String): api.Value
   @native def LLVMBuildFAdd(builder: api.Builder, lhs: api.Value, rhs: api.Value, name: String): api.Value
   @native def LLVMDisposeBuilder(builder: api.Builder)
-  @native def LLVMBuildICmp(builder: api.Builder, Predicate: Int, lhs: api.Value, rhs: api.Value, name: String): api.Value
-  @native def LLVMBuildFCmp(builder: api.Builder, Predicate: Int, lhs: api.Value, rhs: api.Value, name: String): api.Value
+  @native def LLVMBuildICmp(builder: api.Builder, predicate: Int, lhs: api.Value, rhs: api.Value, name: String): api.Value
+  @native def LLVMBuildFCmp(builder: api.Builder, predicate: Int, lhs: api.Value, rhs: api.Value, name: String): api.Value
   @native def LLVMBuildPhi(builder: api.Builder, phiType: api.Type, name: String): api.Value
   @native def LLVMBuildBr(builder: api.Builder, dest: api.BasicBlock): api.Value
   @native def LLVMBuildCondBr(builder: api.Builder, cond: api.Value, then: api.BasicBlock, otherwise: api.BasicBlock): api.Value
+  @native def LLVMBuildLoad(builder: api.Builder, pointerVal: api.Value, name: String): api.Value
+  @native def LLVMBuildStore(builder: api.Builder, value: api.Value, pointerVal: api.Value): api.Value
 
   // Builder actions
   @native def LLVMAppendBasicBlockInContext(context: api.Context, function: api.Value, name: String): api.BasicBlock

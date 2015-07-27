@@ -30,11 +30,19 @@ object Value {
     case _        => fromConstant(value)
   }
 
-  def fromConstant[T](value: T)(implicit module: Module): Value = ???
+  def fromConstant[T](value: T)(implicit module: Module): Constant = value match {
+    case v: Int => new Constant(api.LLVMConstInt(module.int32Type, v, 0))
+    case _ => ???
+  }
 }
 
 abstract class BaseValue(val llvmValue: api.Value, val module: Module) extends Value {
-  def getType: Type = module.mapLLVMType(api.LLVMTypeOf(this))
+  def getType: Type = ???
+}
+
+trait Variable extends Value {
+  def fetchValue(implicit builder: Builder): SSAValue = new SSAValue(api.LLVMBuildLoad(builder, this, ""))(builder.module)
+  def storeValue[T](v: T)(implicit builder: Builder): Instruction = new Instruction(api.LLVMBuildStore(builder, builder.toVal(v), this))
 }
 
 class Constant(llvmValue: api.Value)(implicit module: Module) extends BaseValue(llvmValue, module)

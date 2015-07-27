@@ -24,11 +24,11 @@ class FunctionType(val returnType: Type, val argsTypes: Type*)(implicit val modu
   val llvmType = llvmFunctionType
 }
 
-class Function(val name: String, returnType: Type, argsTypes: Type*)(implicit val module: Module) extends Value {
+class Function(val returnType: Type)(val argsTypes: Type*)(val name: String)(implicit val module: Module) extends Value {
   val functionType = new FunctionType(returnType, argsTypes: _*)
   val llvmFunction = api.LLVMAddFunction(module, name, functionType)
   val llvmValue = llvmFunction
-  lazy val args: Array[Value] = (0 until argsTypes.length) map { i => new SSAValue(api.LLVMGetParam(this, i)).setName(s"arg$i") } toArray
+  lazy val args: Array[Value] = (0 until argsTypes.length) map { i => new SSAValue(api.LLVMGetParam(this, i)) } toArray
 
   def getType = functionType
 
