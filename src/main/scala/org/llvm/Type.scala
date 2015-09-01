@@ -60,14 +60,14 @@ case class FloatType(val llvmType: api.Type) extends Type
 case class Int32Type(val llvmType: api.Type) extends Type
 
 case class StructType(val llvmType: api.Type) extends Type {
-  lazy val elements: Seq[Type] = {
+  def elements: Seq[Type] = {
     val numElements = api.LLVMCountStructElementTypes(this)
     val llvmTypes = new Array[api.Type](numElements)
     api.LLVMGetStructElementTypes(this, llvmTypes)
-    llvmTypes.map { t => Type.resolveLLVMType(t) }
+    llvmTypes.map { Type.resolveLLVMType }
   }
 }
 
 case class PointerType(val llvmType: api.Type) extends Type {
-  lazy val pointedType: Type = Type.resolveLLVMType(api.LLVMGetElementType(this))
+  def pointedType: Type = Type.resolveLLVMType(api.LLVMGetElementType(this))
 }
