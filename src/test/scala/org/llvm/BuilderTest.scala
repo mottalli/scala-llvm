@@ -23,19 +23,18 @@ class BuilderTest extends org.scalatest.FunSuite {
   test("Insertion points can be saved") {
     val function = new Function(module.voidType)(module.int32Type)("testFunction")
     function.build { implicit builder  =>
-      val arg = function.args(0).setName("arg")
+      val arg = function.args(0) as "arg"
 
       builder.pushIP()
       val block1 = function.appendBasicBlock("block1").build { implicit builder =>
-        val sum1 = arg ~+ 1;
+        val sum1 = arg ~+ 1 as "sum1"
         sum1.setName("sum1")
-        val sum2 = arg ~+ 2;
-        sum2.setName("sum2")
+        val sum2 = arg ~+ 2 as "sum2"
       }
       builder.popIP()
 
       // sum3 should come before sum1 and sum2
-      val sum3 = arg ~+ 3; sum3.setName("sum3")
+      val sum3 = arg ~+ 3 as "sum3"
       builder.br(block1)
     }
 

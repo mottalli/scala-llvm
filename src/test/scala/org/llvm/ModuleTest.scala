@@ -10,13 +10,13 @@ class ModuleTest extends org.scalatest.FunSuite {
     assert(module.toString.contains("; ModuleID = 'TestModule'"))
   }
 
-  test("Types can be mapped") {
+  test("Native ypes can be mapped") {
     implicit val context = new Context
     implicit val module = new Module("TestModule")
 
-    assert(module.getType[Int] == module.int32Type)
-    assert(Type.from[Int] == module.int32Type)
-    intercept[UnsupportedTypeException] { module.getType[Module] }
+    assert(module.getNativeType[Int] == module.int32Type)
+    assert(module.getNativeType[Float] == module.floatType)
+    intercept[UnsupportedTypeException] { module.getNativeType[Module] }
   }
 
   test("A function can be created") {
@@ -32,7 +32,34 @@ class ModuleTest extends org.scalatest.FunSuite {
 
     module.addGlobalVariable(module.int32Type, "globalVar")
     assert(module.toString.contains("@globalVar"))
-    println(module)
+  }
+
+  test("We can create, compare and resolve structures") {
+    implicit val context = new Context
+    implicit val module = new Module("TestModule")
+
+    val testStruct1 = module.createStruct("testStruct1", Seq(module.int32Type, module.floatType))
+    // If we don't instantiate the struct, it will not be created in the module
+    val globalVar1 = module.addGlobalVariable(testStruct1, "globalVar1")
+    assert(module.toString.contains("%testStruct1 = type { i32, float }"))
+
+    val testStruct2 = module.createStruct("testStruct2", Seq(module.int32Type, module.floatType))
+    // Even though they are equivalent, these do NOT map to the same type
+    assert(testStruct1 !== testStruct2)
+
+    // Test packed structs
+    val packedStruct1 = module.createStruct("packedStruct1", Seq(module.int32Type, module.floatType), true)
+    val globalVar2 = module.addGlobalVariable(packedStruct1, "globalVar2")
+    assert(module.toString.contains("%packedStruct1 = type <{ i32, float }>"))
+
+    val resolvedType = globalVar1.getType
+    assert(resolvedType.isInstanceOf[PointerType])
+    assert(resolvedType.asInstanceOf[PointerType].pointedType === testStruct1)
+
+    assert(testStruct1.elements(0).isInstanceOf[Int32Type])
+    assert(testStruct1.elements(1).isInstanceOf[FloatType])
+    //println(module)
+
   }
 
 }

@@ -36,6 +36,18 @@ private[llvm] object api {
   val LLVMRealONE = 6
   val LLVMRealORD = 7
 
+  val LLVMVoidTypeKind = 0
+  val LLVMHalfTypeKind = 1
+  val LLVMFloatTypeKind = 2
+  val LLVMDoubleTypeKind = 3
+  val LLVMX86_FP80TypeKind = 4
+  val LLVMFP128TypeKind = 5
+  val LLVMPPC_FP128TypeKind = 6
+  val LLVMLabelTypeKind = 7
+  val LLVMIntegerTypeKind = 8
+  val LLVMStructTypeKind = 10
+  val LLVMPointerTypeKind = 12
+
   // Context
   @native def LLVMContextCreate(): api.Context
   @native def LLVMContextDispose(context: api.Context)
@@ -81,11 +93,20 @@ private[llvm] object api {
   @native def LLVMInt16TypeInContext(context: api.Context): api.Type
   @native def LLVMInt32TypeInContext(context: api.Context): api.Type
   @native def LLVMInt64TypeInContext(context: api.Context): api.Type
+  @native def LLVMGetIntTypeWidth(intType: api.Type): Int
   @native def LLVMFloatTypeInContext(context: api.Context): api.Type
   @native def LLVMDoubleTypeInContext(context: api.Context): api.Type
   @native def LLVMTypeOf(value: api.Value): api.Type
   @native def LLVMPointerType(elementType: api.Type, addressSpace: Int): api.Type
+  @native def LLVMGetTypeKind(typ: api.Type): Int
   @native def LLVMPrintTypeToString(module: api.Type): Pointer
+  @native def LLVMGetElementType(typ: api.Type): api.Type
+
+  // Structs
+  @native def LLVMStructCreateNamed(context: api.Context, name: String): api.Type
+  def LLVMStructSetBody = nonNative.LLVMStructSetBody _
+  @native def LLVMCountStructElementTypes(struct: api.Type): Int
+  def LLVMGetStructElementTypes = nonNative.LLVMGetStructElementTypes _
 
   // Constants
   @native def LLVMConstInt(intType: api.Type, value: Long, signExtend: Int): api.Value
@@ -129,6 +150,9 @@ private[llvm] object api {
 trait NonNativeApi extends Library {
   def LLVMFunctionType(returnType: api.Type, paramTypes: Array[api.Type], numParams: Int, varArgs: Integer): api.FunctionType
   def LLVMAddIncoming(phiNode: api.Value, incomingValues: Array[api.Value], incomingBlocks: Array[api.BasicBlock], count: Int)
+
+  def LLVMStructSetBody(struct: api.Type, elementTypes: Array[api.Type], elementCount: Int, packed: Boolean)
+  def LLVMGetStructElementTypes(structs: api.Type, destTypes: Array[api.Type])
 
   /*def LLVMDumpModule(module: api.Module)
 

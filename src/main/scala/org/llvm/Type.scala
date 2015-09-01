@@ -16,6 +16,10 @@ case object NativeInt32 extends NativeType {
   val tag = typeTag[Int]
 }
 
+case object NativeFloat extends NativeType {
+  val tag = typeTag[Float]
+}
+
 abstract class Type {
   val llvmType: api.Type
 
@@ -25,13 +29,45 @@ abstract class Type {
     api.LLVMDisposeMessage(ptr)
     str
   }
+
+  override def equals(o: Any) = o match {
+    case that: Type => llvmType == that.llvmType
+    case _ => false
+  }
+
+  override def hashCode = llvmType.hashCode
 }
 
 object Type {
   implicit def typeToLLVM(t: Type): api.Type = t.llvmType
 
-  def from[T: TypeTag](implicit module: Module) = module.getType[T]
+  private[llvm] def resolveLLVMType(theType: api.Type): Type = api.LLVMGetTypeKind(theType) match {
+    case api.LLVMIntegerTypeKind => api.LLVMGetIntTypeWidth(theType) match {
+      case 32 => Int32Type(theType)
+    }
+    case api.LLVMFloatTypeKind => FloatType(theType)
+    case api.LLVMPointerTypeKind => PointerType(theType)
+    case api.LLVMStructTypeKind => StructType(theType)
+    case _ => {
+      val unknownType = new Type { override val llvmType: api.Type = theType }
+      throw new UnsupportedTypeException(s"Cannot resolve type '$unknownType'")
+    }
+  }
 }
 
-case class BaseType(val llvmType: api.Type) extends Type
-case class IntType(val llvmType: api.Type, val size: Int) extends Type
+case class VoidType(val llvmType: api.Type) extends Type
+case class FloatType(val llvmType: api.Type) extends Type
+case class Int32Type(val llvmType: api.Type) extends Type
+
+case class StructType(val llvmType: api.Type) extends Type {
+  lazy val elements: Seq[Type] = {
+    val numElements = api.LLVMCountStructElementTypes(this)
+    val llvmTypes = new Array[api.Type](numElements)
+    api.LLVMGetStructElementTypes(this, llvmTypes)
+    llvmTypes.map { t => Type.resolveLLVMType(t) }
+  }
+}
+
+case class PointerType(val llvmType: api.Type) extends Type {
+  lazy val pointedType: Type = Type.resolveLLVMType(api.LLVMGetElementType(this))
+}

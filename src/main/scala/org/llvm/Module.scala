@@ -23,13 +23,25 @@ class Module(val name: String)(implicit val context: Context) extends Disposable
     str
   }
 
-  lazy val voidType = BaseType(api.LLVMVoidTypeInContext(context))
-  lazy val int32Type = IntType(api.LLVMInt32TypeInContext(context), 32)
+  lazy val voidType = new VoidType(api.LLVMVoidTypeInContext(context))
+  lazy val int32Type = new Int32Type(api.LLVMInt32TypeInContext(context))
+  lazy val floatType = new FloatType(api.LLVMFloatTypeInContext(context))
 
-  def getType[T: TypeTag] = typeTag[T] match {
+  def getNativeType[T: TypeTag] = typeTag[T] match {
     case NativeVoid.tag => voidType
     case NativeInt32.tag => int32Type
-    case _ => throw new UnsupportedTypeException("Could not map type to LLVM type")
+    case NativeFloat.tag => floatType
+    case _ => throw new UnsupportedTypeException("Could not map type to native LLVM type")
+  }
+
+  def createStruct(name: String, elementTypes: Seq[Type], packed: Boolean=false): StructType = {
+    val llvmType: api.Type = {
+      val typesArray = elementTypes.toArray.map { _.llvmType }
+      val struct = api.LLVMStructCreateNamed(context, name)
+      api.LLVMStructSetBody(struct, typesArray, typesArray.length, packed)
+      struct
+    }
+    StructType(llvmType)
   }
 
   class GlobalVariable(llvmValue: api.Value) extends BaseValue(llvmValue, this) with Variable
