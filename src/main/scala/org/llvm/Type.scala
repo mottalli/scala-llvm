@@ -30,12 +30,7 @@ abstract class Type {
     str
   }
 
-  override def equals(o: Any) = o match {
-    case that: Type => llvmType == that.llvmType
-    case _ => false
-  }
-
-  override def hashCode = llvmType.hashCode
+  def pointerTo: PointerType = PointerType(api.LLVMPointerType(this, 0))
 }
 
 object Type {
@@ -66,6 +61,8 @@ case class StructType(val llvmType: api.Type) extends Type {
     api.LLVMGetStructElementTypes(this, llvmTypes)
     llvmTypes.map { Type.resolveLLVMType }
   }
+
+  def name: String = api.LLVMGetStructName(this)
 }
 
 case class PointerType(val llvmType: api.Type) extends Type {

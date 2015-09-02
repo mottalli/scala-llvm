@@ -7,9 +7,7 @@ class Builder(implicit val module: Module) extends Disposable {
 
   def dispose() = api.LLVMDisposeBuilder(this)
 
-  def add[T1, T2](v1: T1, v2: T2): SSAValue = new SSAValue(api.LLVMBuildAdd(this, toVal(v1), toVal(v2), ""))
-
-  def toVal[T](v: T): Value = Value.from(v)
+  def add(v1: Value, v2: Value): SSAValue = new SSAValue(api.LLVMBuildAdd(this, v1, v2, ""))
 
   val insertPointStack = new Stack[api.tools.InsertPoint]
   def pushIP() = insertPointStack.push(api.tools.LLVMSaveInsertPoint(this))
@@ -19,7 +17,7 @@ class Builder(implicit val module: Module) extends Disposable {
     api.tools.LLVMDisposeInsertPoint(ip)
   }
 
-  def ret[T](v: T): Instruction = new Instruction(api.LLVMBuildRet(this, toVal(v)))
+  def ret(v: Value): Instruction = new Instruction(api.LLVMBuildRet(this, v))
   def br(destBlock: BasicBlock): Instruction = new Instruction(api.LLVMBuildBr(this, destBlock))
 }
 

@@ -14,15 +14,16 @@ class ModuleTest extends org.scalatest.FunSuite {
     implicit val context = new Context
     implicit val module = new Module("TestModule")
 
-    assert(module.getNativeType[Int] == module.int32Type)
-    assert(module.getNativeType[Float] == module.floatType)
+    assert(module.getNativeType[Int] === module.int32Type)
+    assert(module.getNativeType[Float] === module.floatType)
     intercept[UnsupportedTypeException] { module.getNativeType[Module] }
   }
 
   test("A function can be created") {
     implicit val context = new Context
     implicit val module = new Module("TestModule")
-    val function = new Function(module.voidType)(module.int32Type)("testFunction")
+    val function = new Function("testFunction", module.voidType, module.int32Type)
+    assert(function.name === "testFunction")
     assert(function.toString.contains("declare void @testFunction(i32)"))
   }
 
@@ -39,6 +40,8 @@ class ModuleTest extends org.scalatest.FunSuite {
     implicit val module = new Module("TestModule")
 
     val testStruct1 = module.createStruct("testStruct1", Seq(module.int32Type, module.floatType))
+    assert(testStruct1.name === "testStruct1")
+
     // If we don't instantiate the struct, it will not be created in the module
     val globalVar1 = module.addGlobalVariable(testStruct1, "globalVar1")
     assert(module.toString.contains("%testStruct1 = type { i32, float }"))

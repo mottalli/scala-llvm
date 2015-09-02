@@ -4,9 +4,9 @@ import reflect.runtime.universe.{TypeTag, typeTag}
 
 class Context {
   val llvmContext = api.LLVMContextCreate()
-
   def dispose() = api.LLVMContextDispose(llvmContext)
 }
+
 object Context {
   implicit def contextToLLVM(context: Context): api.Context = context.llvmContext
 }

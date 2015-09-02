@@ -107,6 +107,7 @@ private[llvm] object api {
   def LLVMStructSetBody = nonNative.LLVMStructSetBody _
   @native def LLVMCountStructElementTypes(struct: api.Type): Int
   def LLVMGetStructElementTypes = nonNative.LLVMGetStructElementTypes _
+  @native def LLVMGetStructName(struct: api.Type): String
 
   // Constants
   @native def LLVMConstInt(intType: api.Type, value: Long, signExtend: Int): api.Value
@@ -115,6 +116,7 @@ private[llvm] object api {
   // Values
   @native def LLVMSetValueName(value: api.Value, name: String)
   @native def LLVMPrintValueToString(module: api.Value): Pointer
+  @native def LLVMGetValueName(value: api.Value): String
 
   // Basic block
   @native def LLVMGetBasicBlockTerminator(block: api.BasicBlock): api.Value
