@@ -45,6 +45,7 @@ private[llvm] object api {
   val LLVMPPC_FP128TypeKind = 6
   val LLVMLabelTypeKind = 7
   val LLVMIntegerTypeKind = 8
+  val LLVMFunctionTypeKind = 9
   val LLVMStructTypeKind = 10
   val LLVMPointerTypeKind = 12
 
@@ -76,6 +77,7 @@ private[llvm] object api {
   @native def LLVMBuildCondBr(builder: api.Builder, cond: api.Value, then: api.BasicBlock, otherwise: api.BasicBlock): api.Value
   @native def LLVMBuildLoad(builder: api.Builder, pointerVal: api.Value, name: String): api.Value
   @native def LLVMBuildStore(builder: api.Builder, value: api.Value, pointerVal: api.Value): api.Value
+  @native def LLVMGetInsertBlock(builder: api.Builder): api.BasicBlock
 
   // Builder actions
   @native def LLVMAppendBasicBlockInContext(context: api.Context, function: api.Value, name: String): api.BasicBlock
@@ -85,6 +87,9 @@ private[llvm] object api {
   def LLVMFunctionType = nonNative.LLVMFunctionType _
   @native def LLVMAddFunction(module: api.Module, name: String, funcType: api.Type): api.Value
   @native def LLVMGetParam(function: api.Value, index: Int): api.Value
+  @native def LLVMGetReturnType(functionType: api.Type): api.Type
+  @native def LLVMCountParamTypes(functionType: api.Type): Int
+  def LLVMGetParamTypes = nonNative.LLVMGetParamTypes _
 
   // Types
   @native def LLVMVoidTypeInContext(context: api.Context): api.Type
@@ -155,6 +160,8 @@ trait NonNativeApi extends Library {
 
   def LLVMStructSetBody(struct: api.Type, elementTypes: Array[api.Type], elementCount: Int, packed: Boolean)
   def LLVMGetStructElementTypes(structs: api.Type, destTypes: Array[api.Type])
+
+  def LLVMGetParamTypes(functionType: api.Type, destTypes: Array[api.Type])
 
   /*def LLVMDumpModule(module: api.Module)
 

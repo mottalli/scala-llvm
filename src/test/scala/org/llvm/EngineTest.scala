@@ -22,11 +22,11 @@ class EngineTest extends FunSuite with BeforeAndAfter {
   }
 
   def generateValidFunc1: Function = {
-    val function = new Function("validFunction1", module.int32Type, module.int32Type, module.int32Type)
+    val function = Function.create("validFunction1", module.int32Type, module.int32Type, module.int32Type)
     function { implicit builder  =>
-      val arg0 = function.args(0) as "arg0"
-      val arg1 = function.args(1) as "arg1"
-      val result = arg0 + arg1 as "result"
+      val param0 = function.params(0) as "param0"
+      val param1 = function.params(1) as "param1"
+      val result = param0 + param1 as "result"
       builder.ret(result)
     }
     function
@@ -34,11 +34,11 @@ class EngineTest extends FunSuite with BeforeAndAfter {
 
   def generateInvalidFunc1: Function = {
     // This will generate a type error (int32 + int32 will not return a float)
-    val function = new Function("invalidFunction1", module.floatType, module.int32Type, module.int32Type)
+    val function = Function.create("invalidFunction1", module.floatType, module.int32Type, module.int32Type)
     function { implicit builder  =>
-      val arg0 = function.args(0) as "arg0"
-      val arg1 = function.args(1) as "arg1"
-      val result = arg0 + arg1 as "result"
+      val param0 = function.params(0) as "param0"
+      val param1 = function.params(1) as "param1"
+      val result = param0 + param1 as "result"
       builder.ret(result)
     }
     function

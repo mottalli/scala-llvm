@@ -7,6 +7,11 @@ class UnsupportedTypeException(what: String) extends LLVMException(what)
 abstract class Type {
   val llvmType: api.Type
 
+  override def equals(o: Any) = o match {
+    case that: Type => (llvmType == that.llvmType)
+    case _ => false
+  }
+
   override def toString = {
     val ptr = api.LLVMPrintTypeToString(this)
     val str = ptr.getString(0)
@@ -40,6 +45,7 @@ object LLVMTypeResolver {
         case api.LLVMFloatTypeKind => FloatType(theType)
         case api.LLVMPointerTypeKind => PointerType(theType)
         case api.LLVMStructTypeKind => StructType(theType)
+        case api.LLVMFunctionTypeKind => FunctionType(theType)
         case _ => {
           val unknownType = new Type { override val llvmType: api.Type = theType }
           throw new UnsupportedTypeException(s"Cannot resolve type '$unknownType'")

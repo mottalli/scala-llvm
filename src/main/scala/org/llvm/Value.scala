@@ -49,3 +49,14 @@ trait Variable extends Value {
 class Constant(llvmValue: api.Value)(implicit module: Module) extends BaseValue(llvmValue, module)
 class Instruction(llvmValue: api.Value)(implicit module: Module) extends BaseValue(llvmValue, module)
 class SSAValue(llvmValue: api.Value)(implicit module: Module) extends Instruction(llvmValue)
+class PHINode(llvmValue: api.Value)(implicit module: Module) extends SSAValue(llvmValue) {
+  def <~(p: Tuple2[BasicBlock, Value]): this.type = {
+    ???
+    this
+  }
+
+  def <~(value: Value)(implicit builder: Builder): this.type = {
+    val block = builder.currentBlock
+    this <~ (block, value)
+  }
+}

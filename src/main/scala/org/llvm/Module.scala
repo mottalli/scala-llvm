@@ -21,7 +21,7 @@ class Module(val name: String)(implicit val context: Context) extends Disposable
   }
 
   def compile(optimizationLevel: Int = 3, doVerify: Boolean = true): Engine = {
-    if (doVerify) verify().map(error => throw new InvalidModuleException(error))
+    if (doVerify) verify().map(error => throw InvalidModuleException(error))
 
     val engineRef = new PointerByReference()
     val errorStrRef = new PointerByReference()
@@ -29,7 +29,7 @@ class Module(val name: String)(implicit val context: Context) extends Disposable
       case 1 => {
         val errorStr = errorStrRef.getValue.getString(0)
         api.LLVMDisposeMessage(errorStrRef.getValue)
-        throw new EngineCompilationException(errorStr)
+        throw EngineCompilationException(errorStr)
       }
       case _ => new Engine(engineRef.getValue)
     }
@@ -42,9 +42,9 @@ class Module(val name: String)(implicit val context: Context) extends Disposable
     str
   }
 
-  lazy val voidType = new VoidType(api.LLVMVoidTypeInContext(context))
-  lazy val int32Type = new Int32Type(api.LLVMInt32TypeInContext(context))
-  lazy val floatType = new FloatType(api.LLVMFloatTypeInContext(context))
+  lazy val voidType = VoidType(api.LLVMVoidTypeInContext(context))
+  lazy val int32Type = Int32Type(api.LLVMInt32TypeInContext(context))
+  lazy val floatType = FloatType(api.LLVMFloatTypeInContext(context))
 
   def createStruct(name: String, elementTypes: Seq[Type], packed: Boolean=false): StructType = {
     val llvmType: api.Type = {

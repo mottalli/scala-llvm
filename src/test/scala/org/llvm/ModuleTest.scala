@@ -24,9 +24,10 @@ class ModuleTest extends FunSuite with BeforeAndAfter {
 
   test("A function can be created") {
     module = new Module("TestModule")
-    val function = new Function("testFunction", module.voidType, module.int32Type)
+    val function = Function.create("testFunction", module.voidType, module.int32Type)
     assert(function.name === "testFunction")
     assert(function.toString.contains("declare void @testFunction(i32)"))
+    assert(function.params.length === 1)
   }
 
   test("We can create global variables") {
@@ -57,7 +58,7 @@ class ModuleTest extends FunSuite with BeforeAndAfter {
 
     val resolvedType = globalVar1.getType
     assert(resolvedType.isInstanceOf[PointerType])
-    assert(resolvedType.asInstanceOf[PointerType].pointedType === testStruct1)
+    assert(resolvedType.asInstanceOf[PointerType].pointedType == testStruct1)
 
     assert(testStruct1.elements(0).isInstanceOf[Int32Type])
     assert(testStruct1.elements(1).isInstanceOf[FloatType])

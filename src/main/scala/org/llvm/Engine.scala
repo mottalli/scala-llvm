@@ -1,8 +1,8 @@
 package org.llvm
 
-class InvalidModuleException(what: String) extends LLVMException(what)
-class EngineCompilationException(what: String) extends LLVMException(what)
-class InvalidFunctionException(what: String) extends LLVMException(what)
+case class InvalidModuleException(what: String) extends LLVMException(what)
+case class EngineCompilationException(what: String) extends LLVMException(what)
+case class InvalidFunctionException(what: String) extends LLVMException(what)
 
 class Engine(val llvmEngine: api.ExecutionEngine) extends Disposable {
   protected def doDispose(): Unit = api.LLVMDisposeExecutionEngine(this)
@@ -10,7 +10,7 @@ class Engine(val llvmEngine: api.ExecutionEngine) extends Disposable {
   def getCompiledFunction(function: Function): CompiledFunction = {
     val fptr = api.tools.LLVMToolsGetPointerToFunction(this, function)
     if (fptr == null)
-      throw new InvalidFunctionException(s"Cannot retrieve function ${function.name} from compiled module")
+      throw InvalidFunctionException(s"Cannot retrieve function ${function.name} from compiled module")
     CompiledFunction(function, fptr, this)
   }
 }
