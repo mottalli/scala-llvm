@@ -2,42 +2,42 @@ package org.llvm
 
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
-class ModuleTest extends org.scalatest.FunSuite {
+class ModuleTest extends FunSuite with BeforeAndAfter {
+  implicit var context: Context = null
+  implicit var module: Module = null
+
+  before {
+    context = new Context
+    module = null
+  }
+
+  after {
+    if (module != null)
+      module.dispose()
+    context.dispose()
+  }
 
   test("A module can be created") {
-    implicit val context = new Context
-    val module = new Module("TestModule")
+    module = new Module("TestModule")
     assert(module.toString.contains("; ModuleID = 'TestModule'"))
   }
 
-  test("Native ypes can be mapped") {
-    implicit val context = new Context
-    implicit val module = new Module("TestModule")
-
-    assert(module.getNativeType[Int] === module.int32Type)
-    assert(module.getNativeType[Float] === module.floatType)
-    intercept[UnsupportedTypeException] { module.getNativeType[Module] }
-  }
-
   test("A function can be created") {
-    implicit val context = new Context
-    implicit val module = new Module("TestModule")
+    module = new Module("TestModule")
     val function = new Function("testFunction", module.voidType, module.int32Type)
     assert(function.name === "testFunction")
     assert(function.toString.contains("declare void @testFunction(i32)"))
   }
 
   test("We can create global variables") {
-    implicit val context = new Context
-    implicit val module = new Module("TestModule")
+    module = new Module("TestModule")
 
     module.addGlobalVariable(module.int32Type, "globalVar")
     assert(module.toString.contains("@globalVar"))
   }
 
   test("We can create, compare and resolve structures") {
-    implicit val context = new Context
-    implicit val module = new Module("TestModule")
+    module = new Module("TestModule")
 
     val testStruct1 = module.createStruct("testStruct1", Seq(module.int32Type, module.floatType))
     assert(testStruct1.name === "testStruct1")
@@ -62,7 +62,5 @@ class ModuleTest extends org.scalatest.FunSuite {
     assert(testStruct1.elements(0).isInstanceOf[Int32Type])
     assert(testStruct1.elements(1).isInstanceOf[FloatType])
     //println(module)
-
   }
-
 }

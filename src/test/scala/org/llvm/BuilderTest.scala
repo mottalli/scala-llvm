@@ -2,9 +2,19 @@ package org.llvm
 
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
-class BuilderTest extends org.scalatest.FunSuite {
-  implicit val context = new Context
-  implicit val module = new Module("TestModule")
+class BuilderTest extends FunSuite with BeforeAndAfter {
+  implicit var context: Context = null
+  implicit var module: Module = null
+
+  before {
+    context = new Context
+    module = new Module("TestModule")
+  }
+
+  after {
+    module.dispose()
+    context.dispose()
+  }
 
   test("A function that sums two values") {
     val function = new Function("testFunction", module.int32Type, module.int32Type, module.int32Type)

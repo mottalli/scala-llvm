@@ -130,7 +130,7 @@ private[llvm] object api {
     Native.register("LLVMTools")
 
     @native def LLVMToolsInitializeAll()
-    @native def LLVMToolsCompileModuleWithMCJIT(engineRef: PointerByReference, module: api.Module, optimizationLevel: Int, errorRef: PointerByReference): Int
+    @native def LLVMToolsCompileModuleWithMCJIT(outEngineRef: PointerByReference, module: api.Module, optimizationLevel: Int, errorRef: PointerByReference): Int
     @native def LLVMToolsGetPointerToFunction(engine: api.ExecutionEngine, function: api.Value): Pointer
 
     type InsertPoint = Pointer

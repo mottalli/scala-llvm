@@ -5,13 +5,12 @@ class BasicBlock(val name: String, val function: Function) {
 
   def build(bodyBuilder: Builder => Unit)(implicit builder: Builder): this.type = {
     builder.pushIP()
-    api.LLVMPositionBuilderAtEnd(builder, this)
+    builder.insertAtEndOfBlock(this)
     bodyBuilder(builder)
     builder.popIP()
     this
   }
   def apply(bodyBuilder: Builder=> Unit)(implicit builder: Builder) = build(bodyBuilder)(builder)
-
 }
 
 object BasicBlock {
@@ -25,18 +24,18 @@ class FunctionType(val returnType: Type, val argsTypes: Type*)(implicit val modu
   val llvmType = llvmFunctionType
 }
 
-//class Function(val returnType: Type)(val argsTypes: Type*)(val name: String)(implicit val module: Module) extends Value {
 class Function(functionName: String, val returnType: Type, val argsTypes: Type*)(implicit val module: Module) extends Value {
   val functionType = new FunctionType(returnType, argsTypes: _*)
   val llvmFunction = api.LLVMAddFunction(module, functionName, functionType)
   val llvmValue = llvmFunction
-  lazy val args: Array[Value] = (0 until argsTypes.length) map { i => new SSAValue(api.LLVMGetParam(this, i)) } toArray
+  lazy val args: Array[Value] = (0 until argsTypes.length).map(i => new SSAValue(api.LLVMGetParam(this, i))).toArray
 
   def appendBasicBlock(name: String): BasicBlock = new BasicBlock(name, this)
 
   def build(bodyBuilder: Builder => Unit): this.type = {
     val builder = new Builder
     this.appendBasicBlock("init").build(bodyBuilder)(builder)
+    builder.dispose()
     this
   }
   def apply(bodyBuilder: Builder => Unit) = build(bodyBuilder)
