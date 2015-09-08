@@ -8,8 +8,8 @@ class EngineTest extends FunSuite with BeforeAndAfter {
   implicit var engine: Engine = null
 
   before {
-    context = new Context()
-    module = new Module("TestModule")
+    context = Context.create()
+    module = Module.create("TestModule")
     engine = null
   }
 

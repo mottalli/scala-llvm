@@ -1,6 +1,6 @@
 package org.llvm
 
-case class FunctionType(llvmType: api.Type) extends Type {
+class FunctionType(llvmType: api.Type) extends Type(llvmType) {
   lazy val returnType: Type = Type.resolveLLVMType(api.LLVMGetReturnType(this))
   lazy val paramsTypes: Array[Type] = {
     val numParams = api.LLVMCountParamTypes(this)
@@ -14,11 +14,11 @@ object FunctionType {
   def create(returnType: Type, paramsTypes: Type*)(implicit module: Module): FunctionType = {
     val llvmArgsTypes: Array[api.Type] = paramsTypes.map(_.llvmType).toArray
     val llvmFunctionType = api.LLVMFunctionType(returnType, llvmArgsTypes, llvmArgsTypes.length, 0)
-    FunctionType(llvmFunctionType)
+    new FunctionType(llvmFunctionType)
   }
 }
 
-case class Function(val llvmValue: api.Value)(implicit val module: Module) extends Value {
+class Function(val llvmValue: api.Value)(implicit val module: Module) extends Value {
   // For some reason, LLVM returns the function type as a pointer to the function
   // type instead of the function type directly
   lazy val functionType: FunctionType = getType.asInstanceOf[PointerType].pointedType.asInstanceOf[FunctionType]
@@ -42,6 +42,6 @@ object Function {
   def create(name: String, returnType: Type, paramsTypes: Type*)(implicit module: Module): Function = {
     val functionType = FunctionType.create(returnType, paramsTypes: _*)
     val llvmFunction = api.LLVMAddFunction(module, name, functionType)
-    Function(llvmFunction)
+    new Function(llvmFunction)
   }
 }

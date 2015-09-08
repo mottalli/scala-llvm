@@ -4,6 +4,7 @@ import com.sun.jna.{Library, Pointer, Native}
 import com.sun.jna.ptr.PointerByReference
 
 private[llvm] object api {
+  type GenericObject = Pointer
   type Context = Pointer
   type Module = Pointer
   type Value = Pointer
@@ -52,6 +53,7 @@ private[llvm] object api {
   // Context
   @native def LLVMContextCreate(): api.Context
   @native def LLVMContextDispose(context: api.Context)
+  @native def LLVMGetTypeContext(typ: api.Type): api.Context
 
   // Module
   @native def LLVMModuleCreateWithNameInContext(name: String, context: api.Context): api.Module
@@ -63,6 +65,7 @@ private[llvm] object api {
   @native def LLVMPrintModuleToString(module: api.Module): Pointer
   @native def LLVMDisposeExecutionEngine(engine: api.ExecutionEngine)
   @native def LLVMAddGlobal(module: api.Module, typ: api.Type, name: String): api.Value
+  @native def LLVMGetModuleContext(module: api.Module): api.Context
 
   // Builder
   @native def LLVMCreateBuilderInContext(context: api.Context): api.Builder

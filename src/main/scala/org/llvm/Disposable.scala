@@ -12,4 +12,10 @@ trait Disposable {
   }
 
   protected def doDispose(): Unit
+
+  def withScope[T](body: this.type => T): T = {
+    val result = body(this)
+    this.dispose()
+    result
+  }
 }

@@ -7,7 +7,7 @@ class ModuleTest extends FunSuite with BeforeAndAfter {
   implicit var module: Module = null
 
   before {
-    context = new Context
+    context = Context.create()
     module = null
   }
 
@@ -18,12 +18,12 @@ class ModuleTest extends FunSuite with BeforeAndAfter {
   }
 
   test("A module can be created") {
-    module = new Module("TestModule")
+    module = Module.create("TestModule")
     assert(module.toString.contains("; ModuleID = 'TestModule'"))
   }
 
   test("A function can be created") {
-    module = new Module("TestModule")
+    module = Module.create("TestModule")
     val function = Function.create("testFunction", module.voidType, module.int32Type)
     assert(function.name === "testFunction")
     assert(function.toString.contains("declare void @testFunction(i32)"))
@@ -31,14 +31,14 @@ class ModuleTest extends FunSuite with BeforeAndAfter {
   }
 
   test("We can create global variables") {
-    module = new Module("TestModule")
+    module = Module.create("TestModule")
 
     module.addGlobalVariable(module.int32Type, "globalVar")
     assert(module.toString.contains("@globalVar"))
   }
 
   test("We can create, compare and resolve structures") {
-    module = new Module("TestModule")
+    module = Module.create("TestModule")
 
     val testStruct1 = module.createStruct("testStruct1", Seq(module.int32Type, module.floatType))
     assert(testStruct1.name === "testStruct1")

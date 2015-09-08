@@ -1,8 +1,10 @@
 package org.llvm
 
-trait Value {
+trait Value extends LLVMObjectWrapper {
   val llvmValue: api.Value
+  val llvmObject: api.GenericObject = llvmValue
   implicit val module: Module
+  implicit val context: Context = module.context
 
   override def toString = {
     val ptr = api.LLVMPrintValueToString(this)
@@ -49,6 +51,7 @@ trait Variable extends Value {
 class Constant(llvmValue: api.Value)(implicit module: Module) extends BaseValue(llvmValue, module)
 class Instruction(llvmValue: api.Value)(implicit module: Module) extends BaseValue(llvmValue, module)
 class SSAValue(llvmValue: api.Value)(implicit module: Module) extends Instruction(llvmValue)
+class GlobalVariable(llvmValue: api.Value)(implicit module: Module) extends BaseValue(llvmValue, module) with Variable
 class PHINode(llvmValue: api.Value)(implicit module: Module) extends SSAValue(llvmValue) {
   def <~(p: Tuple2[BasicBlock, Value]): this.type = {
     ???

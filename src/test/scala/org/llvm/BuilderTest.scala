@@ -7,8 +7,8 @@ class BuilderTest extends FunSuite with BeforeAndAfter {
   implicit var module: Module = null
 
   before {
-    context = new Context
-    module = new Module("TestModule")
+    context = Context.create()
+    module = Module.create("TestModule")
   }
 
   after {

@@ -3,10 +3,18 @@ package org.llvm
 import reflect.runtime.universe.{TypeTag, typeTag}
 import com.sun.jna.ptr.PointerByReference
 
-class Module(val name: String)(implicit val context: Context) extends Disposable {
-  val llvmModule = api.LLVMModuleCreateWithNameInContext(name, context)
+class Module(val llvmModule: api.Module) extends LLVMObjectWrapper with Disposable {
+  val llvmObject: api.GenericObject = llvmModule
+  implicit lazy val context: Context = Context.resolveContext(api.LLVMGetModuleContext(this))
 
   protected def doDispose() = api.LLVMDisposeModule(this)
+
+  override def toString = {
+    val ptr = api.LLVMPrintModuleToString(this)
+    val str = ptr.getString(0)
+    api.LLVMDisposeMessage(ptr)
+    str
+  }
 
   def verify(errorsToStdout: Boolean = false): Option[String] = {
     val errorStrRef = new PointerByReference()
@@ -35,16 +43,9 @@ class Module(val name: String)(implicit val context: Context) extends Disposable
     }
   }
 
-  override def toString = {
-    val ptr = api.LLVMPrintModuleToString(this)
-    val str = ptr.getString(0)
-    api.LLVMDisposeMessage(ptr)
-    str
-  }
-
-  lazy val voidType = VoidType(api.LLVMVoidTypeInContext(context))
-  lazy val int32Type = Int32Type(api.LLVMInt32TypeInContext(context))
-  lazy val floatType = FloatType(api.LLVMFloatTypeInContext(context))
+  lazy val voidType = new VoidType(api.LLVMVoidTypeInContext(context))
+  lazy val int32Type = new Int32Type(api.LLVMInt32TypeInContext(context))
+  lazy val floatType = new FloatType(api.LLVMFloatTypeInContext(context))
 
   def createStruct(name: String, elementTypes: Seq[Type], packed: Boolean=false): StructType = {
     val llvmType: api.Type = {
@@ -53,13 +54,16 @@ class Module(val name: String)(implicit val context: Context) extends Disposable
       api.LLVMStructSetBody(struct, typesArray, typesArray.length, packed)
       struct
     }
-    StructType(llvmType)
+    new StructType(llvmType)
   }
 
-  class GlobalVariable(llvmValue: api.Value) extends BaseValue(llvmValue, this) with Variable
-  def addGlobalVariable(typ: Type, name: String) = new GlobalVariable(api.LLVMAddGlobal(this, typ, name))
+  def addGlobalVariable(typ: Type, name: String) = new GlobalVariable(api.LLVMAddGlobal(this, typ, name))(this)
+
+  //private val typeMap: Map[api.Type, Type] = Map.empty
 }
 
 object Module {
   implicit def moduleToLLVM(module: Module): api.Module = module.llvmModule
+
+  def create(name: String)(implicit context: Context): Module = new Module(api.LLVMModuleCreateWithNameInContext(name, context))
 }
