@@ -29,13 +29,16 @@ object Value {
   /** Helper function that casts constants automatically */
   implicit def from[T](value: T)(implicit module: Module): Value = value match {
     case v: Value => v
-    case _        => fromConstant(value)
+    case _ => fromConstant(value)
   }
 
-  def fromConstant[T](value: T)(implicit module: Module): Constant = value match {
-    case v: Int => new Constant(api.LLVMConstInt(module.int32Type, v, 0))
-    case v: Float => new Constant(api.LLVMConstReal(module.floatType, v))
-    case _ => throw new LLVMException(s"Cannot cast value '$value' to LLVM native value")
+  def fromConstant[T](value: T)(implicit module: Module): Constant = {
+    import module.context.Types._
+    value match {
+      case v: Int => new Constant(api.LLVMConstInt(i32, v, 0))
+      case v: Float => new Constant(api.LLVMConstReal(float, v))
+      case _ => throw new LLVMException(s"Cannot cast value '$value' to LLVM native value")
+    }
   }
 }
 

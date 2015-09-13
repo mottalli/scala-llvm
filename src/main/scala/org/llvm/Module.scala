@@ -43,10 +43,6 @@ class Module(val llvmModule: api.Module) extends LLVMObjectWrapper with Disposab
     }
   }
 
-  lazy val voidType = new VoidType(api.LLVMVoidTypeInContext(context))
-  lazy val int32Type = new Int32Type(api.LLVMInt32TypeInContext(context))
-  lazy val floatType = new FloatType(api.LLVMFloatTypeInContext(context))
-
   def createStruct(name: String, elementTypes: Seq[Type], packed: Boolean=false): StructType = {
     val llvmType: api.Type = {
       val typesArray = elementTypes.toArray.map { _.llvmType }

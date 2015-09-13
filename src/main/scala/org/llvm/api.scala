@@ -128,6 +128,7 @@ private[llvm] object api {
 
   // Basic block
   @native def LLVMGetBasicBlockTerminator(block: api.BasicBlock): api.Value
+  @native def LLVMGetBasicBlockParent(block: api.BasicBlock): api.Value
 
   // Misc
   @native def LLVMDisposeMessage(message: Pointer)

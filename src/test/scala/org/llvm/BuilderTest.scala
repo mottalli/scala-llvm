@@ -17,7 +17,8 @@ class BuilderTest extends FunSuite with BeforeAndAfter {
   }
 
   test("A function that sums two values") {
-    val function = Function.create("testFunction", module.int32Type, module.int32Type, module.int32Type)
+    val i32 = context.Types.i32
+    val function = Function.create("testFunction", i32, i32, i32)
     function { implicit builder  =>
       val param0 = function.params(0) as "param0"
       val param1 = function.params(1) as "param1"
@@ -30,7 +31,10 @@ class BuilderTest extends FunSuite with BeforeAndAfter {
   }
 
   test("Insertion points can be saved") {
-    val function = Function.create("testFunction", module.voidType, module.int32Type)
+    val i32 = context.Types.i32
+    val void = context.Types.void
+
+    val function = Function.create("testFunction", void, i32)
     function.build { implicit builder  =>
       val param = function.params(0) as "param"
 
@@ -50,6 +54,23 @@ class BuilderTest extends FunSuite with BeforeAndAfter {
     assert(functionStr.contains("%sum1 = add i32 %param, 1"))
     assert(functionStr.contains("%sum3 = add i32 %param, 3"))
     assert(functionStr.indexOf("%sum3 = add i32 %param, 3") < functionStr.indexOf("%sum1 = add i32 %param, 1"))
+  }
+
+  test("Builder returns the correct insertion blocks and functions") {
+    val function = Function.create("testFunction", context.Types.void)
+    function.build { implicit builder =>
+      val entryBlock = builder.currentBlock
+      assert(builder.currentFunction === function)
+
+      val block = function.appendBasicBlock("block")
+      block.build { builder2 =>
+        assert(builder2 === builder)
+        assert(builder.currentBlock === block)
+        assert(builder.currentFunction === function)
+      }
+
+      assert(builder.currentBlock === entryBlock)
+    }
   }
 
 }
