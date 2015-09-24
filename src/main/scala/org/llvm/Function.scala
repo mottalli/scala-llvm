@@ -30,12 +30,13 @@ class Function(val llvmValue: api.Value)(implicit val module: Module) extends Va
 
   def build(bodyBuilder: Builder => Unit): this.type = {
     val builder = new Builder
-    this.appendBasicBlock("init").build(bodyBuilder)(builder)
+    val initBlock = this.appendBasicBlock("init")
+    builder.insertAtEndOfBlock(initBlock)
+    bodyBuilder(builder)
     builder.dispose()
     this
   }
-
-  def apply(bodyBuilder: Builder => Unit) = build(bodyBuilder)
+  def := = build _
 }
 
 object Function {

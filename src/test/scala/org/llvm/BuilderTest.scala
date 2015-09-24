@@ -19,7 +19,7 @@ class BuilderTest extends FunSuite with BeforeAndAfter {
   test("A function that sums two values") {
     val i32 = context.Types.i32
     val function = Function.create("testFunction", i32, i32, i32)
-    function { implicit builder  =>
+    function := { implicit builder  =>
       val param0 = function.params(0) as "param0"
       val param1 = function.params(1) as "param1"
       val result = param0 + param1 as "result"
@@ -38,12 +38,10 @@ class BuilderTest extends FunSuite with BeforeAndAfter {
     function.build { implicit builder  =>
       val param = function.params(0) as "param"
 
-      builder.pushIP()
-      val block1 = function.appendBasicBlock("block1") { implicit builder =>
+      val block1 = function.appendBasicBlock("block1") {
         val sum1 = param + 1 as "sum1"
         val sum2 = param + 2 as "sum2"
       }
-      builder.popIP()
 
       // sum3 should come before sum1 and sum2
       val sum3 = param + 3 as "sum3"
@@ -63,8 +61,7 @@ class BuilderTest extends FunSuite with BeforeAndAfter {
       assert(builder.currentFunction === function)
 
       val block = function.appendBasicBlock("block")
-      block.build { builder2 =>
-        assert(builder2 === builder)
+      block := {
         assert(builder.currentBlock === block)
         assert(builder.currentFunction === function)
       }

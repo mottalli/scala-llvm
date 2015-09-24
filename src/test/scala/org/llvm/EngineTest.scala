@@ -25,7 +25,7 @@ class EngineTest extends FunSuite with BeforeAndAfter {
     val i32 = context.Types.i32
 
     val function = Function.create("validFunction1", i32, i32, i32)
-    function { implicit builder  =>
+    function := { implicit builder  =>
       val param0 = function.params(0) as "param0"
       val param1 = function.params(1) as "param1"
       val result = param0 + param1 as "result"
@@ -40,7 +40,7 @@ class EngineTest extends FunSuite with BeforeAndAfter {
 
     // This will generate a type error (int32 + int32 will not return a float)
     val function = Function.create("invalidFunction1", float, i32, i32)
-    function { implicit builder  =>
+    function := { implicit builder  =>
       val param0 = function.params(0) as "param0"
       val param1 = function.params(1) as "param1"
       val result = param0 + param1 as "result"
