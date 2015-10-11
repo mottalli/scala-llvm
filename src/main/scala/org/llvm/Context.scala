@@ -36,9 +36,9 @@ class Context(val llvmContext: api.Context) extends LLVMObjectWrapper with Dispo
   /** Basic types */
   val context = this
   object Types {
-    lazy val void = resolveType(api.LLVMVoidTypeInContext(context)).asInstanceOf[VoidType]
-    lazy val i32 = resolveType(api.LLVMInt32TypeInContext(context)).asInstanceOf[Int32Type]
-    lazy val float = resolveType(api.LLVMFloatTypeInContext(context)).asInstanceOf[FloatType]
+    lazy val void: VoidType = resolveType(api.LLVMVoidTypeInContext(context)).asInstanceOf[VoidType]
+    lazy val i32: Int32Type = resolveType(api.LLVMInt32TypeInContext(context)).asInstanceOf[Int32Type]
+    lazy val float: FloatType = resolveType(api.LLVMFloatTypeInContext(context)).asInstanceOf[FloatType]
   }
 }
 

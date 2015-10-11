@@ -45,7 +45,7 @@ class Int32Type(llvmType: api.Type) extends PrimitiveType(llvmType) {
 private[llvm] class UnknownType(llvmType: api.Type) extends Type(llvmType)
 
 class StructType(llvmType: api.Type) extends Type(llvmType) {
-  def elements: Seq[Type] = {
+  def elements: Array[Type] = {
     val numElements = api.LLVMCountStructElementTypes(this)
     val llvmTypes = new Array[api.Type](numElements)
     api.LLVMGetStructElementTypes(this, llvmTypes)
@@ -56,5 +56,5 @@ class StructType(llvmType: api.Type) extends Type(llvmType) {
 }
 
 class PointerType(llvmType: api.Type) extends Type(llvmType) {
-  def pointedType: Type = Type.resolveLLVMType(api.LLVMGetElementType(this))
+  lazy val pointedType: Type = Type.resolveLLVMType(api.LLVMGetElementType(this))
 }
